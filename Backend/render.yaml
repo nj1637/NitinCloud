@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nitincloud-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MASTER_KEY
+        value: your-secret-master-key-change-this
+      - key: DB_PATH
+        value: /opt/render/project/src/data/nitincloud.db
+    disk:
+      name: nitincloud-db
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
