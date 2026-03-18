@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NitinCloud — Personal BaaS</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07080f;
+  --s1:#0c0e1a;
+  --s2:#111425;
+  --border:#1e2340;
+  --border2:#2a3060;
+  --acc:#4f6ef7;
+  --acc2:#7b93ff;
+  --acc3:#a8b8ff;
+  --cyan:#38d9c0;
+  --pink:#f05fa8;
+  --gold:#f0c060;
+  --green:#40d480;
+  --red:#f05050;
+  --text:#e8eaf8;
+  --text2:#8890c0;
+  --text3:#3a4070;
+  --r:10px;
+  --sh:0 8px 32px rgba(0,0,0,0.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Cabinet Grotesk',sans-serif;font-size:14px;
+  display:flex;flex-direction:column;
+}
+
+/* ── GRID BG ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(79,110,247,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,110,247,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── GLOW ORBS ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(79,110,247,0.06),transparent),
+    radial-gradient(ellipse 400px 300px at 80% 80%,rgba(56,217,192,0.04),transparent);
+}
+
+/* ── TOPBAR ── */
+#topbar{
+  position:relative;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:58px;
+  background:rgba(7,8,15,0.9);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+.brand-logo{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--acc),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;
+  color:#fff;letter-spacing:-0.05em;
+  box-shadow:0 0 16px rgba(79,110,247,0.4);
+}
+.brand-name{
+  font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;
+  background:linear-gradient(90deg,var(--acc2),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:-0.02em;
+}
+.brand-tag{
+  font-size:10px;color:var(--text3);letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+.topbar-right{display:flex;align-items:center;gap:12px}
+#server-url-display{
+  font-size:11px;color:var(--text2);
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:6px;padding:5px 10px;font-family:monospace;
+  max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  cursor:pointer;transition:border-color 0.2s;
+}
+#server-url-display:hover{border-color:var(--acc)}
+.status-pill{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text2);
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:20px;padding:4px 10px;
+}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+.status-dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
+.status-dot.err{background:var(--red)}
+.status-dot.spin{background:var(--gold);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* ── LAYOUT ── */
+#layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:230px;flex-shrink:0;
+  background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+  padding:16px 0 24px;
+}
+.sidebar-sec{margin-bottom:4px}
+.sidebar-lbl{
+  font-size:10px;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text3);padding:10px 16px 4px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;cursor:pointer;border-radius:0;
+  color:var(--text2);font-size:13px;font-weight:500;
+  transition:all 0.15s;margin:1px 8px;border-radius:7px;
+  position:relative;
+}
+.nav-item:hover{background:rgba(79,110,247,0.08);color:var(--acc3)}
+.nav-item.active{
+  background:linear-gradient(135deg,rgba(79,110,247,0.15),rgba(79,110,247,0.05));
+  color:var(--acc2);border:1px solid rgba(79,110,247,0.2);
+}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.nav-count{margin-left:auto;font-size:10px;color:var(--text3);
+  background:var(--s2);border:1px solid var(--border);
+  padding:1px 6px;border-radius:8px;font-weight:700;}
+.nav-item.active .nav-count{background:rgba(79,110,247,0.15);color:var(--acc2);border-color:rgba(79,110,247,0.25)}
+
+/* sidebar footer */
+.sidebar-footer{margin-top:auto;padding:12px 8px 0;border-top:1px solid var(--border)}
+
+/* ── MAIN ── */
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+
+/* ── CONNECT SCREEN ── */
+#connect-screen{
+  flex:1;display:flex;align-items:center;justify-content:center;padding:40px;
+}
+.connect-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:18px;padding:44px;max-width:520px;width:100%;
+  box-shadow:var(--sh);
+}
+.connect-card .logo-big{
+  width:56px;height:56px;border-radius:14px;margin-bottom:20px;
+  background:linear-gradient(135deg,var(--acc),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Clash Display',sans-serif;font-size:24px;font-weight:700;
+  color:#fff;box-shadow:0 0 24px rgba(79,110,247,0.4);
+}
+.connect-card h2{
+  font-family:'Clash Display',sans-serif;font-size:28px;font-weight:600;
+  margin-bottom:8px;letter-spacing:-0.02em;
+}
+.connect-card p{color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.form-input{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;padding:11px 14px;color:var(--text);
+  font-family:'Cabinet Grotesk',sans-serif;font-size:13px;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.form-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,110,247,0.12)}
+.form-input::placeholder{color:var(--text3)}
+.btn-primary{
+  width:100%;padding:13px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,var(--acc),#3550e0);
+  color:#fff;font-family:'Cabinet Grotesk',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;
+  transition:opacity 0.2s,transform 0.1s;
+  box-shadow:0 4px 16px rgba(79,110,247,0.35);
+}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:active{transform:scale(0.98)}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text3);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── DASHBOARD ── */
+#dashboard-view{flex:1;overflow-y:auto;padding:28px}
+.page-header{margin-bottom:24px}
+.page-title{font-family:'Clash Display',sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px}
+.page-sub{color:var(--text2);font-size:13px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:12px;
+  padding:20px;transition:border-color 0.2s,transform 0.2s;cursor:default;
+}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.stat-value{font-family:'Clash Display',sans-serif;font-size:36px;font-weight:600;letter-spacing:-0.03em}
+.stat-value.blue{color:var(--acc2)}
+.stat-value.cyan{color:var(--cyan)}
+.stat-value.green{color:var(--green)}
+.stat-value.gold{color:var(--gold)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+.section-title{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.app-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:12px;
+  padding:20px;cursor:pointer;transition:all 0.2s;
+}
+.app-card:hover{border-color:var(--acc);background:var(--s2);transform:translateY(-2px)}
+.app-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.app-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--acc),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  flex-shrink:0;
+}
+.app-info{flex:1;margin-left:12px}
+.app-name{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.app-slug{font-size:11px;color:var(--text3);font-family:monospace;margin-top:2px}
+.app-key{
+  font-size:11px;color:var(--text3);font-family:monospace;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:5px;padding:5px 8px;margin-bottom:12px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  cursor:pointer;transition:border-color 0.2s;
+}
+.app-key:hover{border-color:var(--acc)}
+.app-meta{display:flex;gap:12px;flex-wrap:wrap}
+.app-badge{
+  font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;
+  background:rgba(79,110,247,0.1);color:var(--acc2);border:1px solid rgba(79,110,247,0.15);
+}
+.app-badge.cyan{background:rgba(56,217,192,0.1);color:var(--cyan);border-color:rgba(56,217,192,0.15)}
+.app-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ── BUTTONS ── */
+.btn{
+  border:none;border-radius:7px;padding:8px 14px;
+  font-family:'Cabinet Grotesk',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;
+  letter-spacing:0.02em;
+}
+.btn:hover{opacity:0.85}
+.btn:active{transform:scale(0.97)}
+.btn-blue{background:rgba(79,110,247,0.15);border:1px solid rgba(79,110,247,0.25);color:var(--acc2)}
+.btn-blue:hover{background:rgba(79,110,247,0.25)}
+.btn-cyan{background:rgba(56,217,192,0.1);border:1px solid rgba(56,217,192,0.2);color:var(--cyan)}
+.btn-red{background:rgba(240,80,80,0.1);border:1px solid rgba(240,80,80,0.2);color:var(--red)}
+.btn-green{background:rgba(64,212,128,0.1);border:1px solid rgba(64,212,128,0.2);color:var(--green)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--acc);color:var(--acc2)}
+.btn-solid{background:linear-gradient(135deg,var(--acc),#3550e0);color:#fff;box-shadow:0 3px 12px rgba(79,110,247,0.3)}
+
+/* ── APP DETAIL VIEW ── */
+#app-view{flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:20px}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--text2);cursor:pointer;
+  transition:color 0.15s;margin-bottom:4px;
+  background:none;border:none;font-family:'Cabinet Grotesk',sans-serif;
+}
+.back-btn:hover{color:var(--acc2)}
+.app-header-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.app-title-block{display:flex;align-items:center;gap:14px}
+.app-icon-lg{
+  width:52px;height:52px;border-radius:13px;
+  background:linear-gradient(135deg,var(--acc),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  box-shadow:0 0 20px rgba(79,110,247,0.3);
+}
+.app-view-name{font-family:'Clash Display',sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em}
+.app-view-slug{font-size:12px;color:var(--text3);font-family:monospace;margin-top:2px}
+
+/* API Key box */
+.api-key-box{
+  background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:16px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.api-key-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.api-key-val{
+  font-family:monospace;font-size:14px;color:var(--acc2);
+  letter-spacing:0.05em;cursor:pointer;
+}
+.api-key-val.masked{color:var(--text3);letter-spacing:0.02em}
+
+/* Collections table */
+.collections-section{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+}
+.section-head-title{font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+thead th{
+  background:var(--s2);color:var(--text3);
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  padding:11px 20px;text-align:left;border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid rgba(30,35,64,0.6);transition:background 0.1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(79,110,247,0.03)}
+tbody td{padding:12px 20px;font-size:13px;vertical-align:middle}
+td .mono{font-family:monospace;font-size:12px;color:var(--acc3)}
+td .count{font-size:11px;color:var(--text2)}
+.empty-row td{text-align:center;padding:40px;color:var(--text3)}
+
+/* ── DATA BROWSER ── */
+#data-view{flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:16px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.search-input{
+  background:var(--s2);border:1px solid var(--border2);border-radius:7px;
+  padding:8px 14px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;
+  font-size:13px;outline:none;width:220px;transition:border-color 0.2s;
+}
+.search-input:focus{border-color:var(--acc)}
+.search-input::placeholder{color:var(--text3)}
+.table-wrap{
+  background:var(--s1);border:1px solid var(--border);border-radius:12px;
+  overflow:auto;flex:1;max-height:calc(100vh - 230px);
+}
+.data-table thead th{cursor:pointer;user-select:none}
+.data-table thead th:hover{color:var(--acc2)}
+.data-table thead th.sorted{color:var(--acc2)}
+.data-table tbody td{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-id{font-family:monospace;font-size:11px;color:var(--text3)}
+.row-actions{display:flex;gap:6px}
+.icon-btn{
+  background:transparent;border:1px solid var(--border);border-radius:5px;
+  padding:4px 8px;cursor:pointer;font-size:11px;color:var(--text2);
+  transition:all 0.15s;
+}
+.icon-btn:hover.edit-btn{border-color:var(--acc);color:var(--acc2)}
+.icon-btn:hover.del-btn{border-color:var(--red);color:var(--red)}
+.pagination{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.page-info{font-size:12px;color:var(--text3)}
+.page-btn{
+  background:transparent;border:1px solid var(--border2);border-radius:5px;
+  padding:5px 10px;color:var(--text2);cursor:pointer;font-size:12px;
+  transition:all 0.15s;
+}
+.page-btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc2)}
+.page-btn:disabled{opacity:0.3;cursor:not-allowed}
+.page-btn.active{background:rgba(79,110,247,0.15);border-color:var(--acc);color:var(--acc2)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:16px;
+  padding:32px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,0.8);
+  transform:translateY(16px);transition:transform 0.2s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{
+  font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;
+  margin-bottom:20px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;
+}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-grid .span2{grid-column:1/-1}
+.modal-footer{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+.form-select{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;padding:11px 14px;color:var(--text);
+  font-family:'Cabinet Grotesk',sans-serif;font-size:13px;outline:none;
+}
+.form-select:focus{border-color:var(--acc)}
+.form-textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;padding:11px 14px;color:var(--text);
+  font-family:monospace;font-size:13px;outline:none;resize:vertical;min-height:120px;
+  transition:border-color 0.2s;
+}
+.form-textarea:focus{border-color:var(--acc)}
+
+/* ── TOAST ── */
+#toast-area{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{
+  background:var(--s1);border:1px solid var(--border2);border-radius:9px;
+  padding:12px 18px;font-size:13px;color:var(--text);
+  box-shadow:var(--sh);display:flex;align-items:center;gap:10px;max-width:320px;
+  animation:toastIn 0.2s ease both;
+}
+.toast.success{border-color:rgba(64,212,128,0.35);background:rgba(12,14,26,0.98)}
+.toast.error{border-color:rgba(240,80,80,0.35)}
+.toast.info{border-color:rgba(79,110,247,0.35)}
+@keyframes toastIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── LOADER ── */
+.loader{
+  display:inline-block;width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--border2);border-top-color:var(--acc);
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CODE BLOCK ── */
+.code-block{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:14px;font-family:monospace;font-size:12px;color:var(--acc3);
+  line-height:1.7;overflow-x:auto;margin:8px 0;
+}
+.code-block .kw{color:var(--pink)}
+.code-block .str{color:var(--green)}
+.code-block .cm{color:var(--text3)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--acc)}
+
+/* chip */
+.chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.chip-col{background:rgba(79,110,247,0.12);color:var(--acc2)}
+.chip-tbl{background:rgba(56,217,192,0.1);color:var(--cyan)}
+
+/* row entry animation */
+tbody tr{animation:rowIn 0.12s ease both}
+@keyframes rowIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+
+/* ── HIDDEN ── */
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand" onclick="goHome()">
+    <div class="brand-logo">NC</div>
+    <div>
+      <div class="brand-name">NitinCloud</div>
+      <div class="brand-tag">Personal BaaS Platform</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div id="server-url-display" onclick="openConfig()" title="Click to change server URL">Not connected</div>
+    <div class="status-pill">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Offline</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-sec">
+      <div class="sidebar-lbl">Platform</div>
+      <div class="nav-item active" onclick="goHome()" id="nav-home">
+        <span class="nav-icon">🏠</span> Home
+      </div>
+      <div class="nav-item" onclick="showApps()" id="nav-apps">
+        <span class="nav-icon">📱</span> My Apps
+        <span class="nav-count" id="apps-count">0</span>
+      </div>
+    </div>
+    <div class="sidebar-sec">
+      <div class="sidebar-lbl">Current App</div>
+      <div id="app-nav-items" style="color:var(--text3);font-size:12px;padding:8px 16px">
+        No app selected
+      </div>
+    </div>
+    <div class="sidebar-sec sidebar-footer">
+      <div class="sidebar-lbl">Developer</div>
+      <div class="nav-item" onclick="showApiDocs()">
+        <span class="nav-icon">📖</span> API Docs
+      </div>
+      <div class="nav-item" onclick="openConfig()">
+        <span class="nav-icon">⚙</span> Settings
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- CONNECT SCREEN -->
+    <div id="connect-screen">
+      <div class="connect-card">
+        <div class="logo-big">NC</div>
+        <h2>Welcome to NitinCloud</h2>
+        <p>Your personal Backend-as-a-Service platform. Connect to your Render-hosted API server to start managing apps, collections, and data.</p>
+        <div class="form-group">
+          <label class="form-label">Render Server URL</label>
+          <input class="form-input" id="server-url-input" placeholder="https://nitincloud-api.onrender.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Master Key</label>
+          <input class="form-input" type="password" id="master-key-input" placeholder="Your master key from Render env vars"/>
+        </div>
+        <button class="btn-primary" onclick="connect()">Connect to Server →</button>
+        <div class="divider">or test locally</div>
+        <button class="btn-primary" style="background:linear-gradient(135deg,#1e2340,#2a3060);box-shadow:none" onclick="connectLocal()">
+          Connect to localhost:3000
+        </button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view" class="hidden">
+      <div class="page-header">
+        <div class="page-title">🚀 Dashboard</div>
+        <div class="page-sub">Your NitinCloud platform overview</div>
+      </div>
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-label">📱 Total Apps</div><div class="stat-value blue" id="stat-apps">—</div><div class="stat-sub">active projects</div></div>
+        <div class="stat-card"><div class="stat-label">🗂 Collections</div><div class="stat-value cyan" id="stat-cols">—</div><div class="stat-sub">across all apps</div></div>
+        <div class="stat-card"><div class="stat-label">📄 Documents</div><div class="stat-value green" id="stat-docs">—</div><div class="stat-sub">total records stored</div></div>
+        <div class="stat-card"><div class="stat-label">💾 DB Size</div><div class="stat-value gold" id="stat-size">—</div><div class="stat-sub">SQLite on Render</div></div>
+      </div>
+      <div class="section-title">📱 Your Apps <button class="btn btn-solid" style="margin-left:auto;font-size:12px" onclick="openCreateApp()">+ New App</button></div>
+      <div class="apps-grid" id="apps-grid"></div>
+    </div>
+
+    <!-- APP DETAIL VIEW -->
+    <div id="app-view" class="hidden">
+      <button class="back-btn" onclick="goHome()">← Back to Dashboard</button>
+      <div class="app-header-row">
+        <div class="app-title-block">
+          <div class="app-icon-lg" id="av-icon">📱</div>
+          <div>
+            <div class="app-view-name" id="av-name"></div>
+            <div class="app-view-slug" id="av-slug"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="rotateKey()">🔄 Rotate Key</button>
+          <button class="btn btn-red" onclick="deleteCurrentApp()">🗑 Delete App</button>
+        </div>
+      </div>
+
+      <!-- API Key Box -->
+      <div class="api-key-box">
+        <div style="flex:1;min-width:0">
+          <div class="api-key-label">API Key — use this in your tools</div>
+          <div class="api-key-val masked" id="av-apikey" onclick="toggleKeyVisibility()" title="Click to show/hide">••••••••••••••••••••••••••••</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button class="btn btn-outline" onclick="copyApiKey()">📋 Copy</button>
+          <button class="btn btn-blue" onclick="showCodeSnippet()">{'</>'}  Use in Tool</button>
+        </div>
+      </div>
+
+      <!-- Collections -->
+      <div class="collections-section">
+        <div class="section-header">
+          <div class="section-head-title">🗂 Collections</div>
+          <button class="btn btn-blue" onclick="openCreateCollection()">+ New Collection</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Type</th><th>Documents</th><th>Created</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="collections-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DATA BROWSER VIEW -->
+    <div id="data-view" class="hidden">
+      <div>
+        <button class="back-btn" onclick="backToApp()">← Back to App</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px">
+          <div>
+            <div class="page-title" id="dv-title"></div>
+            <div class="page-sub" id="dv-sub"></div>
+          </div>
+          <div class="toolbar">
+            <input class="search-input" id="dv-search" placeholder="🔍 Search…" oninput="filterDocs()"/>
+            <button class="btn btn-outline" onclick="exportCollection()">📤 Export</button>
+            <button class="btn btn-cyan" onclick="refreshDocs()">🔄 Refresh</button>
+            <button class="btn btn-solid" onclick="openAddDoc()">+ Add Document</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead id="dv-head"></thead>
+          <tbody id="dv-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="dv-pagination"></div>
+    </div>
+
+    <!-- API DOCS VIEW -->
+    <div id="docs-view" class="hidden" style="flex:1;overflow-y:auto;padding:28px">
+      <div class="page-title" style="margin-bottom:8px">📖 API Reference</div>
+      <div class="page-sub" style="margin-bottom:24px">Use these endpoints in any tool — just pass your app's API key</div>
+      <div id="docs-content"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CREATE APP MODAL -->
+<div class="modal-overlay" id="create-app-modal">
+  <div class="modal">
+    <div class="modal-title">📱 Create New App</div>
+    <div class="form-group">
+      <label class="form-label">App Name *</label>
+      <input class="form-input" id="new-app-name" placeholder="e.g. Dev Ayurveda ERP, Musico, Inventory Tool…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="new-app-desc" placeholder="What does this tool do?"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('create-app-modal')">Cancel</button>
+      <button class="btn btn-solid" onclick="createApp()">Create App →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE COLLECTION MODAL -->
+<div class="modal-overlay" id="create-col-modal">
+  <div class="modal">
+    <div class="modal-title">🗂 New Collection</div>
+    <div class="form-group">
+      <label class="form-label">Collection Name *</label>
+      <input class="form-input" id="new-col-name" placeholder="e.g. products, customers, orders…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="new-col-type">
+        <option value="collection">Collection (flexible JSON — Firestore-style)</option>
+        <option value="table">Table (structured — SQL-style)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('create-col-modal')">Cancel</button>
+      <button class="btn btn-solid" onclick="createCollection()">Create →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT DOCUMENT MODAL -->
+<div class="modal-overlay" id="doc-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title" id="doc-modal-title">Add Document</div>
+    <div class="form-group">
+      <label class="form-label">Document Data (JSON)</label>
+      <textarea class="form-textarea" id="doc-json" style="min-height:180px" placeholder='{ "name": "Ashwagandha", "price": 299, "stock": 50 }'></textarea>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Enter valid JSON. All fields are flexible — no schema required.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('doc-modal')">Cancel</button>
+      <button class="btn btn-solid" id="doc-save-btn" onclick="saveDoc()">Save Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="config-modal">
+  <div class="modal">
+    <div class="modal-title">⚙ Server Settings</div>
+    <div class="form-group">
+      <label class="form-label">Server URL</label>
+      <input class="form-input" id="cfg-url" placeholder="https://your-app.onrender.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Master Key</label>
+      <input class="form-input" type="password" id="cfg-key" placeholder="Your master key"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('config-modal')">Cancel</button>
+      <button class="btn btn-solid" onclick="saveConfig()">Save & Reconnect</button>
+    </div>
+  </div>
+</div>
+
+<!-- CODE SNIPPET MODAL -->
+<div class="modal-overlay" id="snippet-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-title">{'</>'} Use in Your Tool</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Copy this SDK snippet into any HTML tool to start reading/writing data instantly.</div>
+    <div class="code-block" id="snippet-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('snippet-modal')">Close</button>
+      <button class="btn btn-solid" onclick="copySnippet()">📋 Copy Code</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-area"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let CFG = { url: '', masterKey: '' };
+let APPS = [];
+let currentApp = null;
+let currentCollection = null;
+let allDocs = [];
+let editingDocId = null;
+let sortCol = null, sortDir = -1;
+let currentPage = 1;
+const PAGE_SIZE = 25;
+
+const APP_ICONS = ['📱','🛒','🏥','🎵','📦','👥','🧾','🚀','💊','🌿','🔧','📊','🎯','💡','🏪'];
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.onload = () => {
+  const saved = localStorage.getItem('nc_config');
+  if (saved) {
+    CFG = JSON.parse(saved);
+    init();
+  }
+};
+
+async function init() {
+  setStatus('spin', 'Connecting…');
+  document.getElementById('server-url-display').textContent = CFG.url;
+  try {
+    await loadStats();
+    await loadApps();
+    hideConnect();
+    showView('dashboard-view');
+    setStatus('ok', 'Connected');
+    toast('Connected to NitinCloud API', 'success');
+  } catch(e) {
+    setStatus('err', 'Connection failed');
+    toast('Cannot reach server. Check URL and master key.', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONNECTION
+// ═══════════════════════════════════════════════════════
+async function connect() {
+  const url = document.getElementById('server-url-input').value.trim().replace(/\/$/,'');
+  const key = document.getElementById('master-key-input').value.trim();
+  if (!url || !key) { toast('URL and master key required', 'error'); return; }
+  CFG = { url, masterKey: key };
+  localStorage.setItem('nc_config', JSON.stringify(CFG));
+  await init();
+}
+
+async function connectLocal() {
+  document.getElementById('server-url-input').value = 'http://localhost:3000';
+  document.getElementById('master-key-input').value = 'nitincloud-master-2024';
+  await connect();
+}
+
+function openConfig() {
+  document.getElementById('cfg-url').value = CFG.url;
+  document.getElementById('cfg-key').value = CFG.masterKey;
+  openModal('config-modal');
+}
+
+async function saveConfig() {
+  const url = document.getElementById('cfg-url').value.trim().replace(/\/$/,'');
+  const key = document.getElementById('cfg-key').value.trim();
+  CFG = { url, masterKey: key };
+  localStorage.setItem('nc_config', JSON.stringify(CFG));
+  closeModal('config-modal');
+  await init();
+}
+
+// ═══════════════════════════════════════════════════════
+//  API CALLS
+// ═══════════════════════════════════════════════════════
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', 'x-master-key': CFG.masterKey };
+  const r = await fetch(CFG.url + path, { headers, ...opts });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({ error: r.statusText }));
+    throw new Error(e.error || r.statusText);
+  }
+  return r.json();
+}
+
+async function appApi(path, opts = {}) {
+  if (!currentApp) throw new Error('No app selected');
+  const headers = { 'Content-Type': 'application/json', 'x-api-key': currentApp.api_key };
+  const r = await fetch(CFG.url + path, { headers, ...opts });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({ error: r.statusText }));
+    throw new Error(e.error || r.statusText);
+  }
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOAD DATA
+// ═══════════════════════════════════════════════════════
+async function loadStats() {
+  const { stats } = await api('/admin/stats');
+  document.getElementById('stat-apps').textContent  = stats.total_apps;
+  document.getElementById('stat-cols').textContent  = stats.total_collections;
+  document.getElementById('stat-docs').textContent  = stats.total_documents.toLocaleString();
+  document.getElementById('stat-size').textContent  = stats.db_size_kb + ' KB';
+}
+
+async function loadApps() {
+  const { apps } = await api('/admin/apps');
+  APPS = apps;
+  document.getElementById('apps-count').textContent = apps.length;
+  renderAppsGrid();
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function setActive(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function showView(id) {
+  ['dashboard-view','app-view','data-view','docs-view'].forEach(v => {
+    document.getElementById(v).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function hideConnect() {
+  document.getElementById('connect-screen').classList.add('hidden');
+}
+
+function goHome() {
+  setActive('nav-home');
+  currentApp = null;
+  currentCollection = null;
+  document.getElementById('app-nav-items').innerHTML = '<div style="color:var(--text3);font-size:12px;padding:4px 0">No app selected</div>';
+  showView('dashboard-view');
+  loadStats();
+  loadApps();
+}
+
+function showApps() {
+  setActive('nav-apps');
+  showView('dashboard-view');
+}
+
+// ═══════════════════════════════════════════════════════
+//  APPS
+// ═══════════════════════════════════════════════════════
+function renderAppsGrid() {
+  const grid = document.getElementById('apps-grid');
+  if (APPS.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text3)">
+      <div style="font-size:48px;margin-bottom:16px;opacity:0.3">📱</div>
+      <div style="font-size:16px;color:var(--text2);margin-bottom:8px">No apps yet</div>
+      <div>Click "+ New App" to create your first app</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = APPS.map((app, i) => {
+    const icon = APP_ICONS[i % APP_ICONS.length];
+    return `
+    <div class="app-card" onclick="openApp('${app.id}')">
+      <div class="app-card-head">
+        <div class="app-icon">${icon}</div>
+        <div class="app-info">
+          <div class="app-name">${app.name}</div>
+          <div class="app-slug">${app.slug}</div>
+        </div>
+      </div>
+      <div class="app-key" onclick="event.stopPropagation();copyText('${app.api_key}','API Key')" title="Click to copy API key">
+        🔑 ${app.api_key.slice(0,28)}…
+      </div>
+      <div class="app-meta">
+        <span class="app-badge">${(app.collections||[]).length} collections</span>
+        <span class="app-badge cyan">${app.doc_count || 0} docs</span>
+        ${app.description ? `<span style="font-size:11px;color:var(--text3)">${app.description}</span>` : ''}
+      </div>
+      <div class="app-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-blue" onclick="openApp('${app.id}')">Open →</button>
+        <button class="btn btn-outline" onclick="copyText('${app.api_key}','API Key')">📋 Copy Key</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCreateApp() { openModal('create-app-modal'); }
+
+async function createApp() {
+  const name = document.getElementById('new-app-name').value.trim();
+  const desc = document.getElementById('new-app-desc').value.trim();
+  if (!name) { toast('App name required', 'error'); return; }
+  try {
+    const { app } = await api('/admin/apps', {
+      method: 'POST',
+      body: JSON.stringify({ name, description: desc })
+    });
+    closeModal('create-app-modal');
+    document.getElementById('new-app-name').value = '';
+    document.getElementById('new-app-desc').value = '';
+    toast(`App "${app.name}" created!`, 'success');
+    await loadApps();
+    openApp(app.id);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function openApp(id) {
+  const app = APPS.find(a => a.id === id) || (await api(`/admin/apps/${id}`)).app;
+  currentApp = app;
+  showView('app-view');
+  setActive('nav-apps');
+  renderAppView();
+}
+
+function renderAppView() {
+  const app = currentApp;
+  const i = APPS.findIndex(a => a.id === app.id);
+  const icon = APP_ICONS[i >= 0 ? i % APP_ICONS.length : 0];
+  document.getElementById('av-icon').textContent = icon;
+  document.getElementById('av-name').textContent = app.name;
+  document.getElementById('av-slug').textContent = app.slug;
+  document.getElementById('av-apikey').dataset.key = app.api_key;
+  document.getElementById('av-apikey').textContent = '••••••••••••••••••••••••••••';
+  document.getElementById('av-apikey').classList.add('masked');
+
+  // Sidebar nav for this app
+  const cols = app.collections || [];
+  const navHtml = cols.length === 0
+    ? '<div style="color:var(--text3);font-size:12px;padding:4px 0">No collections yet</div>'
+    : cols.map(c => `
+        <div class="nav-item" onclick="openCollection('${c.name}')">
+          <span class="nav-icon">${c.type==='table'?'📋':'📄'}</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</span>
+        </div>`).join('');
+  document.getElementById('app-nav-items').innerHTML = navHtml;
+
+  renderCollectionsTable(cols);
+}
+
+function renderCollectionsTable(cols) {
+  const tbody = document.getElementById('collections-table');
+  if (!cols || cols.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No collections yet. Create one above.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = cols.map(c => `
+    <tr>
+      <td><span class="mono">${c.name}</span></td>
+      <td><span class="chip ${c.type==='table'?'chip-tbl':'chip-col'}">${c.type}</span></td>
+      <td><span class="count">${c.doc_count || 0} documents</span></td>
+      <td><span class="count">${new Date(c.created_at).toLocaleDateString('en-IN')}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn edit-btn" onclick="openCollection('${c.name}')">Browse →</button>
+          <button class="icon-btn del-btn" onclick="deleteCollection('${c.name}')">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleKeyVisibility() {
+  const el = document.getElementById('av-apikey');
+  if (el.classList.contains('masked')) {
+    el.textContent = el.dataset.key;
+    el.classList.remove('masked');
+  } else {
+    el.textContent = '••••••••••••••••••••••••••••';
+    el.classList.add('masked');
+  }
+}
+
+function copyApiKey() {
+  const key = document.getElementById('av-apikey').dataset.key;
+  copyText(key, 'API Key');
+}
+
+async function rotateKey() {
+  if (!confirm('Rotate API key? All tools using the old key will stop working.')) return;
+  try {
+    const { api_key } = await api(`/admin/apps/${currentApp.id}/rotate-key`, { method: 'POST' });
+    currentApp.api_key = api_key;
+    document.getElementById('av-apikey').dataset.key = api_key;
+    document.getElementById('av-apikey').textContent = api_key;
+    document.getElementById('av-apikey').classList.remove('masked');
+    toast('API key rotated! Update your tools.', 'success');
+    await loadApps();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteCurrentApp() {
+  if (!confirm(`Delete "${currentApp.name}"? All data will be permanently lost.`)) return;
+  try {
+    await api(`/admin/apps/${currentApp.id}`, { method: 'DELETE' });
+    toast('App deleted', 'success');
+    goHome();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  COLLECTIONS
+// ═══════════════════════════════════════════════════════
+function openCreateCollection() { openModal('create-col-modal'); }
+
+async function createCollection() {
+  const name = document.getElementById('new-col-name').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const type = document.getElementById('new-col-type').value;
+  if (!name) { toast('Name required', 'error'); return; }
+  try {
+    await appApi('/api/collections', { method: 'POST', body: JSON.stringify({ name, type }) });
+    closeModal('create-col-modal');
+    document.getElementById('new-col-name').value = '';
+    toast(`Collection "${name}" created!`, 'success');
+    // Refresh app
+    const { app } = await api(`/admin/apps/${currentApp.id}`);
+    currentApp = app;
+    APPS = APPS.map(a => a.id === app.id ? app : a);
+    renderAppView();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteCollection(name) {
+  if (!confirm(`Delete collection "${name}"? All documents will be deleted.`)) return;
+  try {
+    await appApi(`/api/collections/${name}`, { method: 'DELETE' });
+    toast(`Collection "${name}" deleted`, 'success');
+    const { app } = await api(`/admin/apps/${currentApp.id}`);
+    currentApp = app;
+    APPS = APPS.map(a => a.id === app.id ? app : a);
+    renderAppView();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  DATA BROWSER
+// ═══════════════════════════════════════════════════════
+async function openCollection(name) {
+  currentCollection = name;
+  currentPage = 1;
+  sortCol = null;
+  showView('data-view');
+  document.getElementById('dv-title').textContent = `📄 ${name}`;
+  document.getElementById('dv-search').value = '';
+  await refreshDocs();
+}
+
+function backToApp() {
+  currentCollection = null;
+  showView('app-view');
+}
+
+async function refreshDocs() {
+  document.getElementById('dv-sub').textContent = 'Loading…';
+  try {
+    const { data, total } = await appApi(`/api/${currentCollection}?limit=500`);
+    allDocs = data;
+    document.getElementById('dv-sub').textContent = `${total} documents in ${currentApp.name}`;
+    renderDocsTable();
+  } catch(e) { toast('Error loading: ' + e.message, 'error'); }
+}
+
+function filterDocs() { currentPage = 1; renderDocsTable(); }
+
+function getFilteredDocs() {
+  const q = document.getElementById('dv-search').value.toLowerCase();
+  let rows = allDocs;
+  if (q) rows = rows.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+  if (sortCol) {
+    rows = [...rows].sort((a, b) => {
+      const va = a[sortCol] ?? ''; const vb = b[sortCol] ?? '';
+      const na = parseFloat(va), nb = parseFloat(vb);
+      if (!isNaN(na) && !isNaN(nb)) return (na - nb) * sortDir;
+      return String(va).localeCompare(String(vb)) * sortDir;
+    });
+  }
+  return rows;
+}
+
+function renderDocsTable() {
+  const rows = getFilteredDocs();
+  if (rows.length === 0) {
+    document.getElementById('dv-head').innerHTML = '';
+    document.getElementById('dv-body').innerHTML = `<tr><td colspan="10" style="text-align:center;padding:50px;color:var(--text3)">No documents found. Click "+ Add Document" to create one.</td></tr>`;
+    document.getElementById('dv-pagination').innerHTML = '';
+    return;
+  }
+
+  // Collect all keys (excluding _id, _created_at, _updated_at for columns)
+  const metaKeys = ['_id','_created_at','_updated_at'];
+  const allKeys = [...new Set(rows.flatMap(r => Object.keys(r)))];
+  const dataKeys = allKeys.filter(k => !metaKeys.includes(k)).slice(0, 7);
+  const cols = [...dataKeys];
+
+  // HEAD
+  document.getElementById('dv-head').innerHTML = '<tr>' + cols.map(k => {
+    const arr = sortCol === k ? (sortDir === 1 ? ' ↑' : ' ↓') : '';
+    return `<th class="${sortCol===k?'sorted':''}" onclick="sortDocs('${k}')">${k}${arr}</th>`;
+  }).join('') + '<th>Actions</th></tr>';
+
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const paged = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  document.getElementById('dv-body').innerHTML = paged.map(row => {
+    const cells = cols.map(k => {
+      let v = row[k] ?? '';
+      if (typeof v === 'object') v = JSON.stringify(v);
+      return `<td title="${String(v).replace(/"/g,'&quot;')}">${v}</td>`;
+    }).join('');
+    return `<tr>${cells}<td><div class="row-actions">
+      <button class="icon-btn edit-btn" onclick="openEditDoc('${row._id}')">✏</button>
+      <button class="icon-btn del-btn" onclick="deleteDoc('${row._id}')">🗑</button>
+    </div></td></tr>`;
+  }).join('');
+
+  // Pagination
+  let pgHtml = `<span class="page-info">${total} docs</span>`;
+  if (totalPages > 1) {
+    pgHtml += `<button class="page-btn" onclick="goPg(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+    for (let p = Math.max(1,currentPage-2); p <= Math.min(totalPages,currentPage+2); p++)
+      pgHtml += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPg(${p})">${p}</button>`;
+    pgHtml += `<button class="page-btn" onclick="goPg(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
+  }
+  document.getElementById('dv-pagination').innerHTML = pgHtml;
+}
+
+function sortDocs(key) {
+  if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = 1; }
+  renderDocsTable();
+}
+function goPg(p) { currentPage = p; renderDocsTable(); }
+
+// ── CRUD ────────────────────────────────────────────────
+function openAddDoc() {
+  editingDocId = null;
+  document.getElementById('doc-modal-title').textContent = '➕ Add Document';
+  document.getElementById('doc-save-btn').textContent = 'Save Document';
+  document.getElementById('doc-json').value = '{\n  \n}';
+  openModal('doc-modal');
+  setTimeout(() => document.getElementById('doc-json').focus(), 100);
+}
+
+function openEditDoc(id) {
+  const doc = allDocs.find(d => d._id === id);
+  if (!doc) return;
+  editingDocId = id;
+  document.getElementById('doc-modal-title').textContent = '✏ Edit Document';
+  document.getElementById('doc-save-btn').textContent = 'Save Changes';
+  const clean = { ...doc };
+  delete clean._id; delete clean._created_at; delete clean._updated_at;
+  document.getElementById('doc-json').value = JSON.stringify(clean, null, 2);
+  openModal('doc-modal');
+}
+
+async function saveDoc() {
+  const raw = document.getElementById('doc-json').value;
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { toast('Invalid JSON: ' + e.message, 'error'); return; }
+  const btn = document.getElementById('doc-save-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span>';
+  try {
+    if (editingDocId) {
+      await appApi(`/api/${currentCollection}/${editingDocId}`, { method: 'PATCH', body: JSON.stringify(data) });
+      toast('Document updated', 'success');
+    } else {
+      await appApi(`/api/${currentCollection}`, { method: 'POST', body: JSON.stringify(data) });
+      toast('Document added', 'success');
+    }
+    closeModal('doc-modal');
+    await refreshDocs();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.textContent = editingDocId ? 'Save Changes' : 'Save Document';
+}
+
+async function deleteDoc(id) {
+  if (!confirm('Delete this document?')) return;
+  try {
+    await appApi(`/api/${currentCollection}/${id}`, { method: 'DELETE' });
+    allDocs = allDocs.filter(d => d._id !== id);
+    renderDocsTable();
+    toast('Deleted', 'success');
+    loadStats();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function exportCollection() {
+  const rows = getFilteredDocs();
+  const json = JSON.stringify(rows, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentApp.slug}_${currentCollection}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Exported as JSON', 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CODE SNIPPET
+// ═══════════════════════════════════════════════════════
+function showCodeSnippet() {
+  const key = currentApp?.api_key || 'nc_live_your_api_key';
+  const url = CFG.url || 'https://your-api.onrender.com';
+  const snippet = `<span class="cm">// NitinCloud SDK — paste into any HTML tool</span>
+<span class="kw">const</span> NC = {
+  base: <span class="str">"${url}"</span>,
+  key:  <span class="str">"${key}"</span>,
+
+  <span class="cm">// GET all documents (with optional filters)</span>
+  get: <span class="kw">async</span> (col, params={}) => {
+    <span class="kw">const</span> q = <span class="kw">new</span> URLSearchParams(params).toString();
+    <span class="kw">const</span> r = <span class="kw">await</span> fetch(\`\${NC.base}/api/\${col}?\${q}\`, {
+      headers: { <span class="str">'x-api-key'</span>: NC.key }
+    });
+    <span class="kw">return</span> (await r.json()).data;
+  },
+
+  <span class="cm">// CREATE a document</span>
+  add: <span class="kw">async</span> (col, data) => {
+    <span class="kw">const</span> r = <span class="kw">await</span> fetch(\`\${NC.base}/api/\${col}\`, {
+      method: <span class="str">'POST'</span>,
+      headers: { <span class="str">'x-api-key'</span>: NC.key, <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+      body: JSON.stringify(data)
+    });
+    <span class="kw">return</span> (await r.json()).data;
+  },
+
+  <span class="cm">// UPDATE a document</span>
+  update: <span class="kw">async</span> (col, id, data) => {
+    <span class="kw">const</span> r = <span class="kw">await</span> fetch(\`\${NC.base}/api/\${col}/\${id}\`, {
+      method: <span class="str">'PATCH'</span>,
+      headers: { <span class="str">'x-api-key'</span>: NC.key, <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+      body: JSON.stringify(data)
+    });
+    <span class="kw">return</span> (await r.json()).data;
+  },
+
+  <span class="cm">// DELETE a document</span>
+  del: <span class="kw">async</span> (col, id) => {
+    <span class="kw">await</span> fetch(\`\${NC.base}/api/\${col}/\${id}\`, {
+      method: <span class="str">'DELETE'</span>,
+      headers: { <span class="str">'x-api-key'</span>: NC.key }
+    });
+  }
+};
+
+<span class="cm">// Usage examples:</span>
+<span class="cm">// const products = await NC.get('products', { category: 'herbs' });</span>
+<span class="cm">// const newDoc   = await NC.add('products', { name: 'Ashwagandha', price: 299 });</span>
+<span class="cm">// await NC.update('products', newDoc._id, { price: 349 });</span>
+<span class="cm">// await NC.del('products', newDoc._id);</span>`;
+  document.getElementById('snippet-content').innerHTML = snippet;
+  openModal('snippet-modal');
+}
+
+function copySnippet() {
+  const key = currentApp?.api_key || 'nc_live_your_api_key';
+  const url = CFG.url || 'https://your-api.onrender.com';
+  const code = `// NitinCloud SDK
+const NC = {
+  base: "${url}",
+  key:  "${key}",
+  get: async (col, params={}) => {
+    const q = new URLSearchParams(params).toString();
+    const r = await fetch(\`\${NC.base}/api/\${col}?\${q}\`, { headers: { 'x-api-key': NC.key } });
+    return (await r.json()).data;
+  },
+  add: async (col, data) => {
+    const r = await fetch(\`\${NC.base}/api/\${col}\`, {
+      method: 'POST',
+      headers: { 'x-api-key': NC.key, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return (await r.json()).data;
+  },
+  update: async (col, id, data) => {
+    const r = await fetch(\`\${NC.base}/api/\${col}/\${id}\`, {
+      method: 'PATCH',
+      headers: { 'x-api-key': NC.key, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return (await r.json()).data;
+  },
+  del: async (col, id) => {
+    await fetch(\`\${NC.base}/api/\${col}/\${id}\`, { method: 'DELETE', headers: { 'x-api-key': NC.key } });
+  }
+};`;
+  navigator.clipboard.writeText(code);
+  toast('SDK code copied!', 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+//  API DOCS VIEW
+// ═══════════════════════════════════════════════════════
+function showApiDocs() {
+  showView('docs-view');
+  document.getElementById('docs-content').innerHTML = `
+    <div style="display:grid;gap:20px">
+      ${docSection('🔐 Authentication', `
+        <p style="color:var(--text2);margin-bottom:12px">All API calls need a header. Admin routes use master key, data routes use per-app API key.</p>
+        <div class="code-block">x-master-key: your-master-key   <span class="cm">// Admin routes</span>
+x-api-key: nc_live_xxxxx        <span class="cm">// Data routes (from Dashboard → App → API Key)</span></div>
+      `)}
+      ${docSection('📱 Create App', `
+        <div class="code-block"><span class="kw">POST</span> /admin/apps
+<span class="cm">Headers:</span> x-master-key: your-key
+<span class="cm">Body:</span>    { <span class="str">"name"</span>: <span class="str">"My Tool"</span>, <span class="str">"description"</span>: <span class="str">"optional"</span> }
+<span class="cm">Returns:</span> { app: { id, name, slug, <span class="str">api_key</span>, ... } }</div>
+      `)}
+      ${docSection('📄 CRUD Documents', `
+        <div class="code-block"><span class="cm">// List / search</span>
+<span class="kw">GET</span>    /api/{collection}?search=keyword&sort=price&order=asc&limit=50
+<span class="cm">// Create</span>
+<span class="kw">POST</span>   /api/{collection}          body: { any JSON fields }
+<span class="cm">// Get one</span>
+<span class="kw">GET</span>    /api/{collection}/{id}
+<span class="cm">// Update (partial)</span>
+<span class="kw">PATCH</span>  /api/{collection}/{id}      body: { fields to update }
+<span class="cm">// Delete</span>
+<span class="kw">DELETE</span> /api/{collection}/{id}
+<span class="cm">// Bulk insert</span>
+<span class="kw">POST</span>   /api/{collection}/bulk      body: { data: [{...},{...}] }</div>
+      `)}
+      ${docSection('🔍 Filter & Sort', `
+        <div class="code-block"><span class="cm">// Filter by field value</span>
+GET /api/products?category=herbs&status=active
+<span class="cm">// Search all fields</span>
+GET /api/customers?search=delhi
+<span class="cm">// Sort</span>
+GET /api/invoices?sort=amount&order=desc&limit=20&offset=40</div>
+      `)}
+      ${docSection('⚡ Quick SDK', `
+        <p style="color:var(--text2);margin-bottom:12px">Go to Dashboard → Select App → Click "Use in Tool" to get a ready-to-paste SDK snippet for any HTML tool.</p>
+      `)}
+    </div>`;
+}
+
+function docSection(title, body) {
+  return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--border);font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600">${title}</div>
+    <div style="padding:16px 20px">${body}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+function setStatus(state, msg) {
+  document.getElementById('status-dot').className = 'status-dot ' + state;
+  document.getElementById('status-text').textContent = msg;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+function copyText(text, label = 'Text') {
+  navigator.clipboard.writeText(text).then(() => toast(`${label} copied!`, 'success'));
+}
+
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span> ${msg}`;
+  document.getElementById('toast-area').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
